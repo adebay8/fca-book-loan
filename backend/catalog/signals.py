@@ -19,7 +19,7 @@ def notify_wishlisters_on_availability(sender, instance, created, **kwargs):
         
         available_count = BookItem.objects.filter(book=book, is_available=True).count()
         if available_count == 1:
-            wishes = Wishlist.objects.filter(book=book)
+            wishes = Wishlist.objects.filter(books__id=book.id)
             for wish in wishes:
                 # Check if already notified (optional, if NotificationLog is used)
                 # if not NotificationLog.objects.filter(user=wish.user, book=book, type='availability').exists():

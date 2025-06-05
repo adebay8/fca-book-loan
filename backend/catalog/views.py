@@ -6,11 +6,10 @@ from catalog.models import Book, Wishlist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def book_list_view(request):
+    if request.method != "GET":
+        return HttpResponseBadRequest("Invalid request method, only GET allowed")
     title = request.GET.get("title")
     author = request.GET.get("author")
-    page = request.GET.get("page", 1)
-    per_page = request.GET.get("per_page", 10)
-
     queryset = Book.objects.all().prefetch_related("authors")
 
     if title:
@@ -19,17 +18,9 @@ def book_list_view(request):
         queryset = queryset.filter(authors__name__icontains=author)
 
     queryset = queryset.distinct()
-    paginator = Paginator(queryset, per_page)
-
-    try:
-        books_page = paginator.page(page)
-    except PageNotAnInteger:
-        books_page = paginator.page(1)
-    except EmptyPage:
-        books_page = paginator.page(paginator.num_pages)
 
     books = []
-    for book in books_page:
+    for book in queryset:
         books.append({
             "id": book.id,
             "title": book.title,
@@ -41,14 +32,12 @@ def book_list_view(request):
         })
 
     return JsonResponse({
-        "total": paginator.count,
-        "page": books_page.number,
-        "per_page": int(per_page),
-        "total_pages": paginator.num_pages,
         "books": books,
     })
 
 def book_detail_view(request, book_id):
+    if request.method != "GET":
+        return HttpResponseBadRequest("Invalid request method, only GET allowed")
     book = get_object_or_404(Book.objects.prefetch_related("authors"), pk=book_id)
     data = {
         "id": book.id,
@@ -63,13 +52,14 @@ def book_detail_view(request, book_id):
     return JsonResponse(data)
 
 def book_item_list_view(request, book_id):
+    if request.method != "GET":
+        return HttpResponseBadRequest("Invalid request method, only GET allowed")
     book = get_object_or_404(Book, pk=book_id)
     items = book.items.all()
     item_data = [
         {
             "id": item.id,
             "condition": item.condition,
-            "location": item.location,
             "is_available": item.is_available,
         }
         for item in items
@@ -112,3 +102,18 @@ def remove_from_wishlist(request, book_id):
     wishlist = request.user.wishlist
     wishlist.books.remove(book)
     return JsonResponse({"message": f"Book '{book.title}' removed from wishlist"})
+
+
+"""
+,
+  {
+    "model": "catalog.Wishlist",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "books": [1]
+    }
+  }
+"""

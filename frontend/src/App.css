@@ -1,0 +1,113 @@
+body {
+  background: white;
+  color: #222;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-size: 1.08rem;
+  margin: 0;
+}
+
+.container {
+  margin: 2.5rem auto;
+  padding: 2rem;
+  border: #2e2e2e solid 1px;
+  width: 60vw;
+  min-height: 70vh;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tabs button {
+  padding: 0.6rem 2.2rem;
+  border: none;
+  background: #e7eaf3;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-size: 1.08rem;
+  color: #555;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tabs button.active {
+  background: #646cff;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.08);
+}
+
+.tab-content {
+  text-align: left;
+  border-radius: 0 0 12px 12px;
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-color: #646cff #e7eaf3;
+  scrollbar-width: thin;
+}
+
+.tab-content h2 {
+  margin-top: 0;
+  color: #646cff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.tab-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tab-content li {
+  margin-bottom: 1.3rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #e7eaf3;
+  font-size: 1.07rem;
+  line-height: 1.6;
+}
+
+.tab-content li:last-child {
+  border-bottom: none;
+}
+
+.tab-content strong {
+  color: #222;
+  font-weight: 600;
+  font-size: 1.09rem;
+}
+
+.tab-content p,
+.tab-content span {
+  color: #444;
+}
+
+.tab-content .error {
+  color: #d32f2f;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.tab-content .loading {
+  color: #888;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .tab-content {
+    padding: 1rem 0.5rem;
+  }
+
+  .tabs button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+}
