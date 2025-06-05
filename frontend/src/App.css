@@ -11,7 +11,8 @@ body {
   padding: 2rem;
   border: #2e2e2e solid 1px;
   width: 60vw;
-  min-height: 70vh;
+  height: 70vh;
+  overflow: hidden;
 }
 
 .tabs {
@@ -97,17 +98,45 @@ body {
   margin-bottom: 1rem;
 }
 
-@media (max-width: 600px) {
-  .container {
-    padding: 1rem 0.5rem;
-  }
-
-  .tab-content {
-    padding: 1rem 0.5rem;
-  }
-
-  .tabs button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-  }
+.login-form {
+  margin-bottom: 24px;
+  background: #fff;
+  color: #111;
+  max-width: 340px;
 }
+
+.login-form h3 {
+  margin-top: 0;
+  color: #646cff;
+  font-weight: 600;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #bbb;
+  font-size: 15px;
+  color: #111;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+.login-form button[type="submit"] {
+  width: 100%;
+  background: #646cff;
+  color: #fff;
+  border: none;
+  padding: 10px 0;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.login-form .error {
+  color: #d32f2f;
+  margin-top: 8px;
+  font-weight: 500;
+}
+

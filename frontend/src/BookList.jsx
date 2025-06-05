@@ -15,7 +15,7 @@ function BookList() {
         return res.json()
       })
       .then(data => {
-        setBooks(data.books || [])
+        setBooks(data || [])
         setLoading(false)
       })
       .catch(err => {
