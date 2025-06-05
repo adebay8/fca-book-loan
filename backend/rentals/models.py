@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.models import BaseTimeStampedModel
+from librarysystem.models import BaseTimeStampedModel
 
 class Rental(BaseTimeStampedModel):
     user = models.ForeignKey("auth.User", on_delete=models.CASCADE)

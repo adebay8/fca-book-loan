@@ -18,17 +18,16 @@ class BookViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         
-        self.assertIn('books', data)
-        self.assertEqual(len(data['books']), 1)
+        self.assertEqual(len(data), 1)
 
-        book = data['books'][0]
+        book = data[0]
         expected_keys = {'id', 'title', 'authors', 'isbn', 'publication_year', 'language'}
         self.assertTrue(expected_keys.issubset(book.keys()))
 
     def test_book_list_view_wrong_method(self):
         url = reverse('book_list_view')
         response = self.client.post(url)
-        self.assertIn(response.status_code, [405, 400])
+        self.assertEqual(response.status_code, 405)
 
     def test_book_detail_view_success(self):
         url = reverse('book-detail', args=[self.book.id])
@@ -44,7 +43,7 @@ class BookViewsTestCase(TestCase):
     def test_book_detail_view_wrong_method(self):
         url = reverse('book-detail', args=[self.book.id])
         response = self.client.post(url)
-        self.assertIn(response.status_code, [405, 400])
+        self.assertEqual(response.status_code, 405)
 
 
 class BookItemViewsTestCase(TestCase):
@@ -75,7 +74,7 @@ class WishlistViewsTestCase(TestCase):
     def test_wishlist_list_view_requires_login(self):
         url = reverse('wishlist-list-view')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 401)
 
     def test_wishlist_list_view_authenticated(self):
         self.client.force_login(self.user)
@@ -111,10 +110,10 @@ class WishlistViewsTestCase(TestCase):
         self.client.force_login(self.user)
         url = reverse('add-to-wishlist', args=[self.book.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 405)
 
     def test_remove_from_wishlist_wrong_method(self):
         self.client.force_login(self.user)
         url = reverse('remove-from-wishlist', args=[self.book.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 405)

@@ -1,119 +1,65 @@
-from django.http import JsonResponse, HttpResponseBadRequest
+from rest_framework import generics, status, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
 
 from catalog.models import Book, Wishlist
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .serializers import BookSerializer, BookItemSerializer, WishlistBookSerializer
 
-def book_list_view(request):
-    if request.method != "GET":
-        return HttpResponseBadRequest("Invalid request method, only GET allowed")
-    title = request.GET.get("title")
-    author = request.GET.get("author")
-    queryset = Book.objects.all().prefetch_related("authors")
+class BookListView(generics.ListAPIView):
+    serializer_class = BookSerializer
+    permission_classes = [permissions.AllowAny]
 
-    if title:
-        queryset = queryset.filter(title__icontains=title)
-    if author:
-        queryset = queryset.filter(authors__name__icontains=author)
+    def get_queryset(self):
+        queryset = Book.objects.all().prefetch_related('authors')
+        title = self.request.query_params.get('title')
+        author = self.request.query_params.get('author')
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+        if author:
+            queryset = queryset.filter(authors__name__icontains=author)
+        return queryset.distinct()
 
-    queryset = queryset.distinct()
+class BookDetailView(generics.RetrieveAPIView):
+    queryset = Book.objects.all().prefetch_related('authors')
+    serializer_class = BookSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'pk'
 
-    books = []
-    for book in queryset:
-        books.append({
-            "id": book.id,
-            "title": book.title,
-            "isbn": book.isbn,
-            "language": book.language,
-            "publication_year": book.publication_year,
-            "authors": [author.name for author in book.authors.all()],
-            "available_copies": book.items.filter(is_available=True).count(),
-        })
+class BookItemListView(APIView):
+    permission_classes = [permissions.AllowAny]
 
-    return JsonResponse({
-        "books": books,
-    })
+    def get(self, request, book_id):
+        book = get_object_or_404(Book, pk=book_id)
+        items = book.items.all()
+        serializer = BookItemSerializer(items, many=True)
+        return Response({'book_id': book_id, 'items': serializer.data})
 
-def book_detail_view(request, book_id):
-    if request.method != "GET":
-        return HttpResponseBadRequest("Invalid request method, only GET allowed")
-    book = get_object_or_404(Book.objects.prefetch_related("authors"), pk=book_id)
-    data = {
-        "id": book.id,
-        "title": book.title,
-        "isbn": book.isbn,
-        "language": book.language,
-        "publication_year": book.publication_year,
-        "authors": [author.name for author in book.authors.all()],
-        "total_copies": book.items.count(),
-        "available_copies": book.items.filter(is_available=True).count(),
-    }
-    return JsonResponse(data)
+class WishlistListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-def book_item_list_view(request, book_id):
-    if request.method != "GET":
-        return HttpResponseBadRequest("Invalid request method, only GET allowed")
-    book = get_object_or_404(Book, pk=book_id)
-    items = book.items.all()
-    item_data = [
-        {
-            "id": item.id,
-            "condition": item.condition,
-            "is_available": item.is_available,
-        }
-        for item in items
-    ]
-    return JsonResponse({"book_id": book_id, "items": item_data})
+    def get(self, request):
+        wishlist = request.user.wishlist.books.all()
+        serializer = WishlistBookSerializer(wishlist, many=True)
+        return Response({'books': serializer.data})
 
-@login_required
-def wishlist_list_view(request):
-    wishlist = request.user.wishlist.books.all()
-    data = [
-        {
-            "id": book.id,
-            "title": book.title,
-            "isbn": book.isbn,
-            "authors": [author.name for author in book.authors.all()]
-        }
-        for book in wishlist
-    ]
-    return JsonResponse({"books": data})
+class AddToWishlistView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-@login_required
-def add_to_wishlist(request, book_id):
-    if request.method != "POST":
-        return HttpResponseBadRequest("Invalid request method, only POST allowed")
-    
-    book = get_object_or_404(Book, id=book_id)
-    wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
-    if wishlist.books.filter(id=book.id).exists():
-        return JsonResponse({"message": f"Book '{book.title}' is already in wishlist"}, status=200)
-    wishlist.books.add(book)
-    return JsonResponse({"message": f"Book '{book.title}' added to wishlist"})
+    def post(self, request, book_id):
+        book = get_object_or_404(Book, id=book_id)
+        wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+        if wishlist.books.filter(id=book.id).exists():
+            return Response({'message': f"Book '{book.title}' is already in wishlist"}, status=status.HTTP_200_OK)
+        wishlist.books.add(book)
+        return Response({'message': f"Book '{book.title}' added to wishlist"})
 
+class RemoveFromWishlistView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-@login_required
-def remove_from_wishlist(request, book_id):
-    if request.method != "POST":
-        return HttpResponseBadRequest("Invalid request method, only POST allowed")
-
-    book = get_object_or_404(Book, id=book_id)
-    wishlist = request.user.wishlist
-    wishlist.books.remove(book)
-    return JsonResponse({"message": f"Book '{book.title}' removed from wishlist"})
-
-
-"""
-,
-  {
-    "model": "catalog.Wishlist",
-    "pk": 1,
-    "fields": {
-      "user": 1,
-      "created_at": "2024-01-01T00:00:00Z",
-      "updated_at": "2024-01-01T00:00:00Z",
-      "books": [1]
-    }
-  }
-"""
+    def post(self, request, book_id):
+        book = get_object_or_404(Book, id=book_id)
+        wishlist = request.user.wishlist
+        wishlist.books.remove(book)
+        return Response({'message': f"Book '{book.title}' removed from wishlist"})
