@@ -63,3 +63,22 @@ class RemoveFromWishlistView(APIView):
         wishlist = request.user.wishlist
         wishlist.books.remove(book)
         return Response({'message': f"Book '{book.title}' removed from wishlist"})
+    
+class UpdateAmazonIDsView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        updates = request.data.get('updates', [])
+        updated_books = []
+        for update in updates:
+            book_id = update.get('id')
+            amazon_id = update.get('amazon_id')
+            if book_id is not None and amazon_id is not None:
+                try:
+                    book = Book.objects.get(id=book_id)
+                    book.amazon_id = amazon_id
+                    book.save()
+                    updated_books.append(book_id)
+                except Book.DoesNotExist:
+                    continue
+        return Response({'updated_books': updated_books}, status=status.HTTP_200_OK)

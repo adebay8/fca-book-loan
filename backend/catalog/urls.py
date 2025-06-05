@@ -9,4 +9,5 @@ urlpatterns = [
     path("wishlist/", views.WishlistListView.as_view(), name="wishlist-list-view"),
     path("wishlist/add/<int:book_id>/", views.AddToWishlistView.as_view(), name="add-to-wishlist"),
     path("wishlist/remove/<int:book_id>/", views.RemoveFromWishlistView.as_view(), name="remove-from-wishlist"),
+    path("books/update-amazon-ids/", views.UpdateAmazonIDsView.as_view(), name="update-amazon-ids"),
 ]

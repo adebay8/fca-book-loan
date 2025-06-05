@@ -9,6 +9,7 @@ class Author(BaseTimeStampedModel):
         return self.name
 
 class Book(BaseTimeStampedModel):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255)
     isbn = models.CharField(max_length=13)
     publication_year = models.IntegerField(blank=True, null=True)

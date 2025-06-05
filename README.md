@@ -73,7 +73,13 @@ You can run the entire project (backend and frontend) using Docker Compose. It's
     ```
 
     This variable sets the backend API URL for the frontend app.
-    
+
+---
+
+### Database schema
+
+![Image](https://github.com/user-attachments/assets/c2a4e5d6-8660-417f-b34d-5682f15638e8)
+
 ---
 
 

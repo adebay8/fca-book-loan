@@ -13,6 +13,7 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile)
 
             for row in reader:
+                id = row["Id"].strip()
                 isbn = row["ISBN"].strip()
                 title = row["Title"].strip()
                 pub_year = int(row["Publication Year"].strip())
@@ -20,11 +21,12 @@ class Command(BaseCommand):
                 authors_raw = row["Authors"].strip()
 
                 book, created = Book.objects.get_or_create(
-                    isbn=isbn,
+                    id=id,
                     defaults={
                         "title": title,
                         "publication_year": pub_year,
                         "language": language,
+                        "isbn": isbn,
                     },
                 )
 
