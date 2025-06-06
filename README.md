@@ -9,14 +9,14 @@
 
 ### Prerequisites
 - Python 3.10+
-- Node.js 18+
+- Node.js 20+
 - Docker (optional, for containerized setup)
 
 ---
 
 ### Running with Docker Compose
 
-You can run the entire project (backend and frontend) using Docker Compose. It's recommended way to get started quickly.
+You can run the entire project (backend and frontend) using Docker Compose.
 
 1. **Build and start the containers:**
    ```sh
