@@ -9,6 +9,7 @@ class BookViewsTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = get_user_model().objects.get(username="testuser")
+        self.staff_user = get_user_model().objects.get(username="teststaffuser")
         self.author = Author.objects.get(name="Test Author")
         self.book = Book.objects.get(title="Test Book")
 
@@ -44,6 +45,42 @@ class BookViewsTestCase(TestCase):
         url = reverse('book-detail', args=[self.book.id])
         response = self.client.post(url)
         self.assertEqual(response.status_code, 405)
+
+    def test_update_amazon_ids_success(self):
+        self.client.force_login(self.staff_user)
+        url = reverse("update-amazon-ids")
+        payload = {"updates": [{"id": self.book.id, "amazon_id": "NEWAMZ123"}]}
+        response = self.client.post(url, payload, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.book.id, response.json()["updated_books"])
+        self.book.refresh_from_db()
+        self.assertEqual(self.book.amazon_id, "NEWAMZ123")
+
+    def test_update_amazon_ids_partial_update(self):
+        self.client.force_login(self.staff_user)
+        url = reverse("update-amazon-ids")
+        payload = {"updates": [
+            {"id": self.book.id, "amazon_id": "AMZID1"},
+            {"id": 9999, "amazon_id": "DOESNOTEXIST"}
+        ]}
+        response = self.client.post(url, payload, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.book.id, response.json()["updated_books"])
+        self.book.refresh_from_db()
+        self.assertEqual(self.book.amazon_id, "AMZID1")
+
+    def test_update_amazon_ids_invalid_payload(self):
+        self.client.force_login(self.staff_user)
+        url = reverse("update-amazon-ids")
+        response = self.client.post(url, {}, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["updated_books"], [])
+
+    def test_update_amazon_ids_permission_denied(self):
+        self.client.force_login(self.user)
+        url = reverse("update-amazon-ids")
+        response = self.client.post(url, {"updates": []}, content_type='application/json')
+        self.assertEqual(response.status_code, 403)
 
 
 class BookItemViewsTestCase(TestCase):

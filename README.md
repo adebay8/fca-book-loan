@@ -133,8 +133,15 @@ Authorization: Bearer <your_token_here>
 - **GET** `/catalog/wishlist/` — Get current user's wishlist (auth required)
 - **POST** `/catalog/wishlist/add/<book_id>/` — Add book to wishlist (auth required)
 - **POST** `/catalog/wishlist/remove/<book_id>/` — Remove book from wishlist (auth required)
-
-### Rentals Endpoints (Admin only)
+- **POST** `/catalog/books/update-amazon-ids/` — Update the Amazon IDs associated with books (admin only)
+      ```json
+      {
+         "updates": [
+            { "id": 1, "amazon_id": "AMAZON_ID_1" },
+            { "id": 2, "amazon_id": "AMAZON_ID_2" }
+         ]
+      }
+      ```
 
 - **POST** `/rentals/borrow/<item_id>/` — Borrow a book item
 - **POST** `/rentals/return/<item_id>/` — Return a book item

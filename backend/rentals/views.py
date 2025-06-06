@@ -46,6 +46,9 @@ class ReturnBookItemView(APIView):
         rental.save(update_fields=["returned_at"])
         item.is_available = True
         item.save(update_fields=["is_available"])
+
+        # Notifications are initiated via django signals, so they are not triggered here.
+
         return Response(
             {
                 "message": f"BookItem #{item.id} (“{item.book.title}”) returned and marked available. Notifications enqueued."

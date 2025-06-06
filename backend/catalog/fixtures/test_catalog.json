@@ -4,9 +4,20 @@
     "pk": 1,
     "fields": {
       "username": "testuser",
-      "password": "pbkdf2_sha256$260000$test$testhash",  
+      "password": "pbkdf2_sha256$260000$test$testhash",
       "is_active": true,
       "is_staff": false,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "auth.User",
+    "pk": 3,
+    "fields": {
+      "username": "teststaffuser",
+      "password": "pbkdf2_sha256$260000$staff$staffhash",
+      "is_active": true,
+      "is_staff": true,
       "is_superuser": false
     }
   },
